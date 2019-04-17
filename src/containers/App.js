@@ -1,15 +1,28 @@
 import React, {Component} from 'react';
+import { connect } from 'react-redux';
 import CardList from '../components/CardList.js';
 import SearchBox from '../components/SearchBox.js';
 import Scroll from '../components/Scroll.js';
 import './App.css';
 
+import { setSearchField } from '../actions';
+
+const mapStateToProps = state => {
+    return {
+        searchField: state.searchField
+    }
+}
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        onSearchChange: (event) => dispatch(setSearchField(event.target.value))
+    }
+}
 class App extends Component {
     constructor() {
         super();
         this.state = {
-            robots: [],
-            searchfield: ''
+            robots: []
         }
         console.log(this.state.robots);
     }
@@ -20,28 +33,22 @@ class App extends Component {
         .then(users => this.setState({ robots: users }));
     }
 
-    onSearchChange = (event) => {
-        this.setState({ searchfield: event.target.value});
-        
-       // this.setState({ robots: filteredRobots});
-      
-    }
-
     render () {
-        const filteredRobots = this.state.robots.filter(robot => {
-            return robot.name.toLowerCase().includes(this.state.searchfield.toLowerCase());
+        const { robots } = this.state;
+        const { searchField, onSearchChange } = this.props;
+        const filteredRobots = robots.filter(robot => {
+            return robot.name.toLowerCase().includes(searchField.toLowerCase());
         })
-        if (this.state.robots.length === 0) {
+        if (robots.length === 0) {
             return <h1>Loading</h1>
         } else {
             return (
             <div className='tc'>
                 <h1 className='f1'>RoboFriends </h1>
-                <SearchBox searchChange={this.onSearchChange} /> 
-                <Scroll>
-                    <CardList robots={filteredRobots}/>  
+                <SearchBox searchChange={onSearchChange} /> 
+                <Scroll>           
+                    <CardList robots={filteredRobots} />  
                 </Scroll>
-                 
             </div> 
             );    
         }
@@ -50,4 +57,4 @@ class App extends Component {
     
 }
 
-export default App;
+export default connect(mapStateToProps, mapDispatchToProps)(App);
